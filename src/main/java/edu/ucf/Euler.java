@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -13,12 +14,21 @@ public class Euler
     {
         System.out.println("Welcome!");
         int[][] adjacencyMatrix = getInputFile();
+        int[][] test = {{0,1,0,0},{1,0,0,0},{0,0,0,1},{0,0,1,0}} ;
+        System.out.println("Goodbye!");
+    }
+
+    public static boolean allTrue(boolean[] array)
+    {
+        for(boolean b : array) if(!b) return false;
+        return true;
     }
 
     private static int[][] convertListToArray(List<int[]> list)
     {
         int[][] array = new int[list.size()][list.size()];
-        for (int i = 0; i < list.size(); i++) {
+        for (int i = 0; i < list.size(); i++)
+        {
             array[i] = list.get(i);
         }
         return array;
@@ -27,25 +37,68 @@ public class Euler
     private static int[][] getInputFile()
     {
         boolean hasInput = false;
-        while(!hasInput) {
-            try {
+        while(!hasInput)
+        {
+            try
+            {
                 System.out.print("Enter input filename(leave blank for default): ");
                 Scanner keyb = new Scanner(System.in);
                 String input = keyb.nextLine();
                 if (input.isEmpty()) return readDefaultInput("Data.txt");
-                else {
+                else
+                {
                     File f = new File(input);
-                    if (f.exists() && !f.isDirectory()) {
+                    if (f.exists() && !f.isDirectory())
+                    {
                         hasInput = true;
                         return readInput(input);
                     } else System.out.println("File Not Found!");
                 }
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 e.printStackTrace();
             }
         }
 
         return null;
+    }
+
+    public static boolean Prim(int[][] G) {
+        boolean[] selected = new boolean[G.length];
+        selected[0] = true;
+
+        int edgeCount = 0;
+        while (edgeCount < G.length - 1)
+        {
+            int min = Integer.MAX_VALUE;
+            int x = 0, y = 0;
+
+            // find minimum edge
+            for (int i = 0; i < G.length; i++)
+            {
+                if (selected[i] == true)
+                {
+                    for (int j = 0; j < G.length; j++)
+                    {
+                        // not in selected and there is an edge
+                        if (!selected[j] && G[i][j] != 0)
+                        {
+                            if (min > G[i][j])
+                            {
+                                min = G[i][j];
+                                x = i;
+                                y = j;
+                            }
+                        }
+                    }
+                }
+            }
+            System.out.println(x + " - " + y + " :  " + G[x][y]);
+            selected[y] = true;
+            edgeCount++;
+        }
+        return allTrue(selected);
     }
 
     public static int[][] readDefaultInput(String filename)
@@ -77,10 +130,12 @@ public class Euler
     private static int[][] readInput(String filename)
     {
         List<int[]> adjacencyList = new ArrayList<>();
-        try {
+        try
+        {
             Scanner scanner = new Scanner(new File(filename));
 
-            while (scanner.hasNextLine()) {
+            while (scanner.hasNextLine())
+            {
                 String line = scanner.nextLine();
                 String[] lineParts = line.split("\\s+");
                 String[] strArray = lineParts[1].split(",");
@@ -93,9 +148,12 @@ public class Euler
             }
 
             scanner.close();
-        } catch (FileNotFoundException e) {
+        }
+        catch (FileNotFoundException e)
+        {
             e.printStackTrace();
         }
         return convertListToArray(adjacencyList);
     }
+
 }
