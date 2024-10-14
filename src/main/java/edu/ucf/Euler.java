@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -15,6 +14,7 @@ public class Euler
         System.out.println("Welcome!");
         int[][] adjacencyMatrix = getInputFile();
         int[][] test = {{0,1,0,0},{1,0,0,0},{0,0,0,1},{0,0,1,0}} ;
+        boolean b = Prim(test,3);
         System.out.println("Goodbye!");
     }
 
@@ -64,41 +64,53 @@ public class Euler
         return null;
     }
 
-    public static boolean Prim(int[][] G) {
-        boolean[] selected = new boolean[G.length];
-        selected[0] = true;
+    public static boolean isValidEdge(int i, int v,
+                               boolean[] visited)
+    {
+        if (i == v)
+            return false;
+        if (visited[i] == false && visited[v] == false)
+            return false;
+        else if (visited[i] == true && visited[v] == true)
+            return false;
+        return true;
+    }
+
+    public static boolean Prim(int[][] G, int startVertex) {
+        boolean[] visited = new boolean[G.length];
+        visited[startVertex] = true;
 
         int edgeCount = 0;
         while (edgeCount < G.length - 1)
         {
             int min = Integer.MAX_VALUE;
-            int x = 0, y = 0;
+            int x = -1, y = -1;
 
-            // find minimum edge
             for (int i = 0; i < G.length; i++)
             {
-                if (selected[i] == true)
+                for (int j = 0; j < G.length; j++)
                 {
-                    for (int j = 0; j < G.length; j++)
+                    // not in selected and there is an edge
+                    if (!visited[j] && G[i][j] != 0)
                     {
-                        // not in selected and there is an edge
-                        if (!selected[j] && G[i][j] != 0)
+                        if (min > G[i][j] && isValidEdge(i,j,visited))
                         {
-                            if (min > G[i][j])
-                            {
-                                min = G[i][j];
-                                x = i;
-                                y = j;
-                            }
+                            min = G[i][j];
+                            x = i;
+                            y = j;
                         }
                     }
                 }
             }
-            System.out.println(x + " - " + y + " :  " + G[x][y]);
-            selected[y] = true;
+
+            if (x != -1 && y != -1)
+            {
+                System.out.println(x + " - " + y + " :  " + G[x][y]);
+                visited[y] = true;
+            }
             edgeCount++;
         }
-        return allTrue(selected);
+        return allTrue(visited);
     }
 
     public static int[][] readDefaultInput(String filename)
