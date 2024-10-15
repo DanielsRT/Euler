@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Euler:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Euler_jar</output-path>
+    <root id="archive" name="Euler.jar">
+      <element id="module-output" name="Euler" />
+    </root>
+  </artifact>
+</component>
