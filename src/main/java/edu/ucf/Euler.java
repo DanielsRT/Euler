@@ -13,7 +13,7 @@ public class Euler
     public static void main(String[] args) throws IOException {
         System.out.println("Welcome!");
         int[][] adjacencyMatrix = getInputFile();
-        int startVertex = 0;//getStartVertex(adjacencyMatrix);
+        int startVertex = getStartVertex(adjacencyMatrix);
         int[][] test = {{0,1,1,1,1},
                         {1,0,1,0,0},
                         {1,1,0,0,0},
@@ -22,7 +22,7 @@ public class Euler
         List<Integer> circuit = fleury(adjacencyMatrix,startVertex);
         saveResults(circuit, startVertex);
         System.out.println("Euler circuit: " + circuit);
-        System.out.println("Goodbye!");
+        System.out.println("\nGoodbye!");
     }
 
     public static boolean allTrue(boolean[] array)
@@ -140,6 +140,24 @@ public class Euler
         return null;
     }
 
+    private static int getStartVertex(int[][] adjacencyMatrix)
+    {
+        boolean hasInput = false;
+        while (!hasInput)
+        {
+            try {
+                System.out.print("\nEnter start vertex: ");
+                Scanner keyb = new Scanner(System.in);
+                int input = Integer.parseInt(keyb.nextLine());
+                if (input >= 0 && input <= adjacencyMatrix.length-1) return input;
+                else System.out.println("Vertex out of bounds");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return -1;
+    }
+
     public static boolean isValidEdge(int i, int j, boolean[] visited)
     {
         if (i == j || visited[i] == visited[j])
@@ -246,7 +264,7 @@ public class Euler
 
         File jarFile = new File(Euler.class.getProtectionDomain().getCodeSource().getLocation().getPath());
         File filepath = new File(jarFile.getParentFile(), startVertex+"-euler_circuit.txt");
-        System.out.println(filepath);
+        System.out.println("\n"+filepath);
         Path outputFilename = Path.of(filepath.toURI());
         try
         {
