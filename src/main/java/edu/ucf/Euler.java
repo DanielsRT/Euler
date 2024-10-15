@@ -14,14 +14,16 @@ public class Euler
         System.out.println("Welcome!");
         int[][] adjacencyMatrix = getInputFile();
         int startVertex = getStartVertex(adjacencyMatrix);
-        int[][] test = {{0,1,1,1,1},
-                        {1,0,1,0,0},
-                        {1,1,0,0,0},
-                        {1,0,0,0,1},
-                        {1,0,0,1,0}};
+
         List<Integer> circuit = fleury(adjacencyMatrix,startVertex);
-        saveResults(circuit, startVertex);
+
+        if (circuit != null)
+            saveResults(circuit, startVertex);
+        else
+            System.out.println("No Eulerian circuit found");
+
         System.out.println("Euler circuit: " + circuit);
+
         System.out.println("\nGoodbye!");
     }
 
@@ -46,8 +48,8 @@ public class Euler
         for (int[] vertex: G)
         {
             int vertexDegree = 0;
-            for (int i = 0; i < vertex.length; i++)
-                if (vertex[i] != 0) vertexDegree++;
+            for (int weight: vertex)
+                if (weight != 0) vertexDegree++;
 
             if (vertexDegree % 2 != 0) return false;
         }
@@ -59,8 +61,8 @@ public class Euler
         int edgeCount = 0;
         for (int[] vertex: G)
         {
-            for (int i = 0; i < vertex.length; i++)
-                if (vertex[i] != 0) edgeCount++;
+            for (int weight : vertex)
+                if (weight != 0) edgeCount++;
         }
         
         return edgeCount / 2;
@@ -149,7 +151,11 @@ public class Euler
                 System.out.print("\nEnter start vertex: ");
                 Scanner keyb = new Scanner(System.in);
                 int input = Integer.parseInt(keyb.nextLine());
-                if (input >= 0 && input <= adjacencyMatrix.length-1) return input;
+                if (input >= 0 && input <= adjacencyMatrix.length - 1)
+                {
+                    hasInput = true;
+                    return input;
+                }
                 else System.out.println("Vertex out of bounds");
             } catch (Exception e) {
                 e.printStackTrace();
@@ -163,11 +169,6 @@ public class Euler
         if (i == j || visited[i] == visited[j])
             return false;
         return true;
-    }
-
-    public static boolean prim(int[][] G, int startVertex)
-    {
-        return allTrue(primHelper(G, startVertex));
     }
 
     private static boolean[] primHelper(int[][] G, int startVertex) {
@@ -184,7 +185,6 @@ public class Euler
             {
                 for (int j = 0; j < G.length; j++)
                 {
-                    // not in selected and there is an edge
                     if (!visited[j] && G[i][j] != 0)
                     {
                         if (min > G[i][j] && isValidEdge(i,j,visited))
