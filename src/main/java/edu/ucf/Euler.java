@@ -2,22 +2,26 @@ package edu.ucf;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 public class Euler
 {
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) throws IOException {
         System.out.println("Welcome!");
         int[][] adjacencyMatrix = getInputFile();
+        int startVertex = 0;//getStartVertex(adjacencyMatrix);
         int[][] test = {{0,1,1,1,1},
                         {1,0,1,0,0},
                         {1,1,0,0,0},
                         {1,0,0,0,1},
                         {1,0,0,1,0}};
-        List<Integer> circuit = fleury(test,0);
-        System.out.println(circuit);
+        List<Integer> circuit = fleury(adjacencyMatrix,startVertex);
+        saveResults(circuit, startVertex);
+        System.out.println("Euler circuit: " + circuit);
         System.out.println("Goodbye!");
     }
 
@@ -236,6 +240,27 @@ public class Euler
             e.printStackTrace();
         }
         return convertListToArray(adjacencyList);
+    }
+
+    private static void saveResults(List<Integer> circuit, int startVertex) throws IOException {
+
+        File jarFile = new File(Euler.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+        File filepath = new File(jarFile.getParentFile(), startVertex+"-euler_circuit.txt");
+        System.out.println(filepath);
+        Path outputFilename = Path.of(filepath.toURI());
+        try
+        {
+            String fileContents = "";
+            for (int i = 0; i < circuit.size(); i++) {
+                if (i == circuit.size() - 1) fileContents += circuit.get(i);
+                else fileContents += circuit.get(i)+",";
+            }
+            Files.writeString(outputFilename,fileContents);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     private static boolean validateWithPrims(int[][] G, int startVertex, boolean[] visited)
