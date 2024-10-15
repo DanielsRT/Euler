@@ -3,9 +3,7 @@ package edu.ucf;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Euler
 {
@@ -13,8 +11,13 @@ public class Euler
     {
         System.out.println("Welcome!");
         int[][] adjacencyMatrix = getInputFile();
-        int[][] test = {{0,1,0,0},{1,0,0,0},{0,0,0,1},{0,0,1,0}} ;
-        boolean b = Prim(test,3);
+        int[][] test = {{0,1,1,1,1},
+                        {1,0,1,0,0},
+                        {1,1,0,0,0},
+                        {1,0,0,0,1},
+                        {1,0,0,1,0}};
+        List<Integer> circuit = fleury(test,0);
+        System.out.println(circuit);
         System.out.println("Goodbye!");
     }
 
@@ -32,6 +35,75 @@ public class Euler
             array[i] = list.get(i);
         }
         return array;
+    }
+
+    private static boolean containsEulerCircuit(int[][] G)
+    {
+        for (int[] vertex: G)
+        {
+            int vertexDegree = 0;
+            for (int i = 0; i < vertex.length; i++)
+                if (vertex[i] != 0) vertexDegree++;
+
+            if (vertexDegree % 2 != 0) return false;
+        }
+        return true;
+    }
+
+    private static int edgeCount(int[][] G)
+    {
+        int edgeCount = 0;
+        for (int[] vertex: G)
+        {
+            for (int i = 0; i < vertex.length; i++)
+                if (vertex[i] != 0) edgeCount++;
+        }
+        
+        return edgeCount / 2;
+    }
+    
+    public static List<Integer> fleury(int[][] G, int startVertex)
+    {
+        if (!containsEulerCircuit(G)) return null;
+
+        boolean[] visited = new boolean[G.length];
+        visited[startVertex] = true;
+
+        List<Integer> circuit = new LinkedList<>();
+        circuit.add(startVertex);
+
+        int[][] tempGraph = G.clone();
+        int edgeCount = edgeCount(tempGraph);
+        int x = startVertex;
+        while (edgeCount > 0)
+        {
+            boolean hasVertex = false;
+            int y = 0;
+            do {
+                if (tempGraph[x][y] != 0)
+                {
+                    int xWeight = tempGraph[x][y];
+                    int yWeight = tempGraph[y][x];
+                    tempGraph[x][y] = tempGraph[y][x] = 0;
+                    if (validateWithPrims(tempGraph, y, visited))
+                    {
+                        circuit.add(y);
+                        edgeCount--;
+                        x = y;
+                        visited[x] = true;
+                        hasVertex = true;
+                    }
+                    else
+                    {
+                        tempGraph[x][y] = xWeight;
+                        tempGraph[y][x] = yWeight;
+                    }
+                }
+                y++;
+            } while (!hasVertex && y < G.length);
+        }
+
+        return circuit;
     }
 
     private static int[][] getInputFile()
@@ -64,19 +136,19 @@ public class Euler
         return null;
     }
 
-    public static boolean isValidEdge(int i, int v,
-                               boolean[] visited)
+    public static boolean isValidEdge(int i, int j, boolean[] visited)
     {
-        if (i == v)
-            return false;
-        if (visited[i] == false && visited[v] == false)
-            return false;
-        else if (visited[i] == true && visited[v] == true)
+        if (i == j || visited[i] == visited[j])
             return false;
         return true;
     }
 
-    public static boolean Prim(int[][] G, int startVertex) {
+    public static boolean prim(int[][] G, int startVertex)
+    {
+        return allTrue(primHelper(G, startVertex));
+    }
+
+    private static boolean[] primHelper(int[][] G, int startVertex) {
         boolean[] visited = new boolean[G.length];
         visited[startVertex] = true;
 
@@ -104,13 +176,11 @@ public class Euler
             }
 
             if (x != -1 && y != -1)
-            {
-                System.out.println(x + " - " + y + " :  " + G[x][y]);
                 visited[y] = true;
-            }
+
             edgeCount++;
         }
-        return allTrue(visited);
+        return visited;
     }
 
     public static int[][] readDefaultInput(String filename)
@@ -166,6 +236,16 @@ public class Euler
             e.printStackTrace();
         }
         return convertListToArray(adjacencyList);
+    }
+
+    private static boolean validateWithPrims(int[][] G, int startVertex, boolean[] visited)
+    {
+        boolean[] primResults = primHelper(G, startVertex);
+        if (visited.length != primResults.length) return false;
+        for (int i = 0; i < primResults.length; i++) {
+            if (visited[i]) primResults[i] = visited[i];
+        }
+        return allTrue(primResults);
     }
 
 }
